@@ -1,18 +1,20 @@
 {
-  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.mcpcentral-io/mcp-time",
+  "title": "MCP Time Server",
   "description": "Time MCP server via HTTP",
+  "websiteUrl": "https://mcp.time.mcpcentral.io",
   "repository": {
     "url": "https://github.com/mcpcentral-io/mcp-time",
     "source": "github"
   },
-  "version": "0.0.3",
+  "version": "0.0.4",
   "packages": [
     {
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "@mcpcentral/mcp-time",
-      "version": "0.0.3",
+      "version": "0.0.4",
       "transport": {
         "type": "stdio"
       }
