@@ -1,6 +1,6 @@
 {
   "name": "@mcpcentral/mcp-time",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "mcpName": "io.github.mcpcentral-io/mcp-time",
   "description": "Time MCP server via HTTP",
   "type": "module",

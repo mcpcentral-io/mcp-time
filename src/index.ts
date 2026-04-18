@@ -19,7 +19,7 @@ dayjs.extend(isoWeek);
 export interface Env {}
 
 const SERVER_NAME = 'mcp-time';
-const SERVER_VERSION = '0.0.4';
+const SERVER_VERSION = '0.0.5';
 
 // 2025-11-25 is the latest and preferred version.
 const SUPPORTED_PROTOCOL_VERSIONS = [
@@ -42,11 +42,11 @@ const ALLOWED_ORIGIN_HOSTS = new Set([
 const DEFAULT_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 
 // Treat invalid timezones as structured tool errors rather than
-// silently producing "Invalid Date" strings.
+// silently producing "Invalid Date" strings. DateTimeFormat accepts
+// common aliases (UTC/GMT/Zulu) that Intl.supportedValuesOf omits,
+// so construct-and-catch is the authoritative check.
 function isValidTimezone(tz: string): boolean {
 	try {
-		const supported = (Intl as any).supportedValuesOf?.('timeZone') as string[] | undefined;
-		if (supported) return supported.includes(tz);
 		new Intl.DateTimeFormat('en-US', { timeZone: tz });
 		return true;
 	} catch {
@@ -159,7 +159,10 @@ const TOOLS: ToolDef[] = [
 		outputSchema: relativeTimeOutput,
 		annotations: READ_ONLY_HINTS,
 		async handler(args: { time: string }) {
-			const parsed = dayjs(args.time);
+			// Parse bare strings as UTC for deterministic results across
+			// deployments. Clients needing local semantics should call
+			// convert_time first or pass an offset/TZ-aware string.
+			const parsed = dayjs.utc(args.time);
 			if (!parsed.isValid()) return err(`Invalid date-time: ${args.time}`);
 			return ok({ relativeTime: parsed.fromNow() });
 		},
@@ -177,7 +180,7 @@ const TOOLS: ToolDef[] = [
 		outputSchema: daysInMonthOutput,
 		annotations: READ_ONLY_HINTS,
 		async handler(args: { date?: string }) {
-			const parsed = args.date ? dayjs(args.date) : dayjs();
+			const parsed = args.date ? dayjs.utc(args.date) : dayjs.utc();
 			if (args.date && !parsed.isValid()) return err(`Invalid date: ${args.date}`);
 			return ok({ days: parsed.daysInMonth() });
 		},
@@ -195,7 +198,7 @@ const TOOLS: ToolDef[] = [
 		outputSchema: timestampOutput,
 		annotations: READ_ONLY_HINTS,
 		async handler(args: { time?: string }) {
-			const parsed = args.time ? dayjs(args.time) : dayjs();
+			const parsed = args.time ? dayjs.utc(args.time) : dayjs.utc();
 			if (args.time && !parsed.isValid()) return err(`Invalid date-time: ${args.time}`);
 			return ok({ timestamp: parsed.valueOf() });
 		},
@@ -241,7 +244,7 @@ const TOOLS: ToolDef[] = [
 		outputSchema: weekYearOutput,
 		annotations: READ_ONLY_HINTS,
 		async handler(args: { date?: string }) {
-			const parsed = args.date ? dayjs(args.date) : dayjs();
+			const parsed = args.date ? dayjs.utc(args.date) : dayjs.utc();
 			if (args.date && !parsed.isValid()) return err(`Invalid date: ${args.date}`);
 			return ok({ week: parsed.week(), isoWeek: parsed.isoWeek() });
 		},
